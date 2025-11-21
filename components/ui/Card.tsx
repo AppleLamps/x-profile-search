@@ -14,13 +14,13 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <motion.div
-      whileHover={hover ? { y: -4 } : {}}
+      whileHover={hover ? { y: -2, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05)' } : {}}
       className={`
-        glass
-        rounded-card p-8 md:p-12
+        bg-white border border-primary-border
+        rounded-card p-6 md:p-8
         shadow-card
-        ${hover ? 'hover:shadow-card-hover hover:border-primary-accent/20' : ''}
-        transition-all duration-300 ease-out
+        ${hover ? 'hover:border-primary-accent/30' : ''}
+        transition-all duration-200 ease-out
         ${className}
       `}
     >

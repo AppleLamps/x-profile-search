@@ -93,7 +93,7 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
-    
+
     if (section.type === 'heading' && section.items.length > 0) {
       // Start new section
       if (currentSection) {
@@ -144,31 +144,45 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
   }
 
   return (
-    <Card className="mt-8">
+    <Card hover={false} className="shadow-lg">
       <div className="mb-6">
-        <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
+        <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
           <div>
-            <h2 className="text-heading-md mb-2">Research Report</h2>
-            <p className="text-small text-primary-text-secondary">
-              {isStreaming ? 'Generating report...' : 'Report complete'}
-            </p>
+            <h2 className="text-heading-md font-bold text-primary-text mb-1">Research Report</h2>
+            <div className="flex items-center gap-2">
+              {isStreaming ? (
+                <>
+                  <div className="w-2 h-2 bg-primary-accent rounded-full animate-pulse" />
+                  <p className="text-small text-primary-text-secondary">
+                    Generating report...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 text-primary-success" />
+                  <p className="text-small text-primary-text-secondary">
+                    Report complete
+                  </p>
+                </>
+              )}
+            </div>
           </div>
-          
+
           {!isStreaming && displayedContent && (
             <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant="secondary"
                 onClick={handleCopy}
-                className="h-10 px-3 sm:px-4 text-small"
+                className="h-9 px-3 text-small"
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Copied!</span>
+                    <Check className="w-4 h-4" />
+                    <span className="hidden sm:inline">Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 sm:mr-2" />
+                    <Copy className="w-4 h-4" />
                     <span className="hidden sm:inline">Copy</span>
                   </>
                 )}
@@ -176,9 +190,9 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
               <Button
                 variant="secondary"
                 onClick={handleDownload}
-                className="h-10 px-3 sm:px-4 text-small"
+                className="h-9 px-3 text-small"
               >
-                <Download className="w-4 h-4 sm:mr-2" />
+                <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Download</span>
               </Button>
             </div>
@@ -196,7 +210,7 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
       {/* Report Content */}
       <div
         ref={contentRef}
-        className="max-w-none text-primary-text max-h-[500px] sm:max-h-[600px] lg:max-h-[800px] overflow-y-auto"
+        className="max-w-none text-primary-text max-h-[600px] sm:max-h-[700px] lg:max-h-[900px] overflow-y-auto pr-2 -mr-2"
       >
         {reportSections.length > 0 ? (
           reportSections.map((section, sectionIndex) => (
@@ -204,7 +218,7 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
               key={sectionIndex}
               title={section.title}
               collapsible={reportSections.length > 1}
-              defaultCollapsed={sectionIndex > 0 && reportSections.length > 3}
+              defaultCollapsed={false}
             >
               <div className="space-y-4">
                 {section.content.map((contentSection, contentIndex) => (
@@ -217,13 +231,12 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
                           return (
                             <HeadingTag
                               key={itemIndex}
-                              className={`font-semibold text-primary-text mb-2 ${
-                                level === 1
-                                  ? 'text-heading-md'
-                                  : level === 2
+                              className={`font-semibold text-primary-text mb-2 ${level === 1
+                                ? 'text-heading-md'
+                                : level === 2
                                   ? 'text-heading-sm'
                                   : 'text-body font-medium'
-                              }`}
+                                }`}
                             >
                               {item.content}
                             </HeadingTag>
@@ -281,15 +294,14 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
                       return (
                         <HeadingTag
                           key={itemIndex}
-                          className={`font-bold text-primary-text mb-2 ${
-                            level === 1
-                              ? 'text-heading-lg'
-                              : level === 2
+                          className={`font-bold text-primary-text mb-2 ${level === 1
+                            ? 'text-heading-lg'
+                            : level === 2
                               ? 'text-heading-md'
                               : level === 3
-                              ? 'text-heading-sm'
-                              : 'text-body'
-                          }`}
+                                ? 'text-heading-sm'
+                                : 'text-body'
+                            }`}
                         >
                           {item.content}
                         </HeadingTag>
@@ -374,26 +386,6 @@ export const StreamingReport: React.FC<StreamingReportProps> = ({
         </motion.div>
       )}
 
-      {/* Success animation */}
-      {!isStreaming && displayedContent && (
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-4 text-center"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 text-small text-primary-text-secondary"
-            >
-              <Check className="w-4 h-4 text-green-600" />
-              <span>Report generated successfully</span>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
-      )}
     </Card>
   )
 }

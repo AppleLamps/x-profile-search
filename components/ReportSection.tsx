@@ -54,28 +54,28 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`mb-8 last:mb-0 ${className}`}
+      transition={{ duration: 0.2 }}
+      className={`mb-6 last:mb-0 ${className}`}
     >
-      <div className="glass rounded-card p-6 hover:border-primary-accent/30 transition-all duration-300">
+      <div className="bg-primary-background-off/50 border border-primary-border-light rounded-card p-5 hover:border-primary-accent/20 transition-all duration-200">
         {/* Section Header */}
         <motion.button
           onClick={() => collapsible && setIsCollapsed(!isCollapsed)}
           disabled={!collapsible}
           className={`
-            w-full flex items-center justify-between gap-4 mb-4
-            ${collapsible ? 'cursor-pointer' : 'cursor-default'}
+            w-full flex items-center justify-between gap-4 mb-3
+            ${collapsible ? 'cursor-pointer group' : 'cursor-default'}
           `}
           whileHover={collapsible ? { x: 2 } : {}}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.15 }}
         >
           <div className="flex items-center gap-3">
-            <div className="text-primary-accent">
+            <div className="text-primary-accent bg-primary-accent-light p-2 rounded-lg">
               {getIcon()}
             </div>
-            <h3 className="text-heading-md font-bold text-primary-text text-left">
+            <h3 className="text-heading-sm font-bold text-primary-text text-left group-hover:text-primary-accent transition-colors">
               {title}
             </h3>
           </div>
@@ -84,7 +84,7 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
             <motion.div
               animate={{ rotate: isCollapsed ? 0 : 180 }}
               transition={{ duration: 0.2 }}
-              className="text-primary-text-secondary"
+              className="text-primary-text-tertiary group-hover:text-primary-accent transition-colors"
             >
               <ChevronDown className="w-5 h-5" />
             </motion.div>

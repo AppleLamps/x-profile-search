@@ -51,7 +51,8 @@ export interface XAIStreamChunk {
 }
 
 export interface AnalyzeProfileOptions {
-  username: string
+  username?: string
+  usernames?: string[]
   onChunk: (chunk: XAIStreamChunk) => void
   onError: (error: Error) => void
   onComplete: () => void
@@ -62,6 +63,7 @@ export interface AnalyzeProfileOptions {
  */
 export async function analyzeProfile({
   username,
+  usernames,
   onChunk,
   onError,
   onComplete,
@@ -72,10 +74,40 @@ export async function analyzeProfile({
     throw new Error('XAI_API_KEY environment variable is not set')
   }
 
-  // Sanitize username (remove @ if present)
-  const cleanUsername = username.trim().replace(/^@/, '')
+  // Determine mode and targets
+  const targets = usernames && usernames.length > 0
+    ? usernames.map(u => u.trim().replace(/^@/, ''))
+    : username
+      ? [username.trim().replace(/^@/, '')]
+      : []
 
-  const systemPrompt = `You are an expert social media analyst specializing in comprehensive profile research. Your task is to conduct thorough research on X (Twitter) profiles and generate detailed, professional research reports.
+  if (targets.length === 0) {
+    throw new Error('No usernames provided for analysis')
+  }
+
+  const isComparison = targets.length > 1
+  const handlesString = targets.map(t => `@${t}`).join(' and ')
+
+  const systemPrompt = isComparison
+    ? `You are an expert social media analyst specializing in comparative profile research. Your task is to conduct a side-by-side comparison of X (Twitter) profiles and generate a detailed, professional comparative report.
+
+When comparing profiles, you should:
+1. Analyze each profile's posting patterns, content strategy, and engagement
+2. Identify key differences and similarities in their approach
+3. Compare their audience interaction and growth metrics
+4. Highlight unique strengths and weaknesses of each profile
+5. Determine which profile is performing better in specific areas (e.g., consistency, viral reach, community building)
+
+Structure your report with:
+- Executive Summary (Direct comparison of key metrics)
+- Content Strategy Comparison
+- Engagement & Audience Analysis
+- Strengths & Weaknesses (Side-by-side)
+- Strategic Recommendations for each
+- Final Verdict/Conclusion
+
+Be objective, data-driven, and professional in your comparison.`
+    : `You are an expert social media analyst specializing in comprehensive profile research. Your task is to conduct thorough research on X (Twitter) profiles and generate detailed, professional research reports.
 
 When analyzing a profile, you should:
 1. Search across different time periods to understand posting patterns and evolution
@@ -95,7 +127,9 @@ Structure your report with:
 
 Be thorough, objective, and professional in your analysis.`
 
-  const userPrompt = `Conduct comprehensive research on the X profile @${cleanUsername}. Analyze their posts across different time periods, identify key themes and topics, examine engagement patterns, and highlight notable content. Provide a detailed research report with insights into their posting behavior, content strategy, and overall profile characteristics.`
+  const userPrompt = isComparison
+    ? `Conduct a comprehensive comparative research on the X profiles ${handlesString}. Analyze their posts, compare their content strategies and engagement patterns, and identify their respective strengths and weaknesses. Provide a detailed comparative report.`
+    : `Conduct comprehensive research on the X profile ${handlesString}. Analyze their posts across different time periods, identify key themes and topics, examine engagement patterns, and highlight notable content. Provide a detailed research report with insights into their posting behavior, content strategy, and overall profile characteristics.`
 
   const requestBody = {
     model: process.env.XAI_MODEL || 'grok-4-1-fast-reasoning-latest',
@@ -112,7 +146,7 @@ Be thorough, objective, and professional in your analysis.`
     tools: [
       {
         type: 'x_search',
-        allowed_x_handles: [cleanUsername],
+        allowed_x_handles: targets,
         enable_image_understanding: true,
         enable_video_understanding: true,
       },
@@ -125,6 +159,10 @@ Be thorough, objective, and professional in your analysis.`
 
   try {
     timeoutId = setTimeout(() => controller.abort(), XAI_API_TIMEOUT)
+
+    console.log('xAI Request URL:', `${XAI_API_BASE_URL}/responses`)
+    console.log('xAI Request Model:', requestBody.model)
+    console.log('Starting xAI API request...')
 
     const response = await fetch(`${XAI_API_BASE_URL}/responses`, {
       method: 'POST',
@@ -148,6 +186,8 @@ Be thorough, objective, and professional in your analysis.`
         `xAI API error: ${response.status} ${response.statusText}`
       )
     }
+
+    console.log('xAI API request successful, status:', response.status)
 
     if (!response.body) {
       throw new Error('No response body received from xAI API')
@@ -211,6 +251,7 @@ Be thorough, objective, and professional in your analysis.`
 
     onComplete()
   } catch (error) {
+    console.error('API call failed:', error)
     if (timeoutId) {
       clearTimeout(timeoutId)
     }

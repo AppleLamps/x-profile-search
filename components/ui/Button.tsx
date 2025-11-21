@@ -16,26 +16,29 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles = `
-    h-14 px-8 rounded-button
-    font-medium text-body tracking-wide
-    transition-all duration-300 ease-out
+    h-12 px-6 rounded-button
+    font-semibold text-body
+    transition-all duration-200 ease-out
     disabled:opacity-50 disabled:cursor-not-allowed
     focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-primary-background
     relative overflow-hidden
+    inline-flex items-center justify-center gap-2
   `
 
   const variantStyles = {
     primary: `
-      bg-gradient-to-r from-brand-start to-brand-end
-      text-white shadow-lg shadow-brand-start/25
-      hover:shadow-brand-start/40 hover:scale-[1.02]
+      bg-primary-accent
+      text-white shadow-button
+      hover:bg-primary-accent-hover hover:shadow-button-hover
+      active:scale-[0.98]
       border border-transparent
     `,
     secondary: `
-      bg-primary-background-off/50 backdrop-blur-md
-      text-primary-text border border-primary-border/50
-      hover:bg-primary-background-off/80 hover:border-primary-accent/50
-      hover:shadow-lg hover:shadow-primary-accent/10
+      bg-white
+      text-primary-text border border-primary-border
+      hover:bg-primary-background-off hover:border-primary-accent/40
+      hover:shadow-sm
+      active:scale-[0.98]
     `,
   }
 
@@ -50,20 +53,15 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <motion.button
-      whileHover={!disabled && !isLoading ? { scale: 1.02 } : {}}
       whileTap={!disabled && !isLoading ? { scale: 0.98 } : {}}
       disabled={disabled || isLoading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       {...validProps}
     >
-      {isLoading ? (
-        <span className="flex items-center justify-center gap-2">
-          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          <span>Loading...</span>
-        </span>
-      ) : (
-        children
+      {isLoading && (
+        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       )}
+      <span>{children}</span>
     </motion.button>
   )
 }

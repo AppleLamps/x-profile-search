@@ -16,7 +16,8 @@ export interface ErrorData {
 }
 
 export interface AnalyzeRequest {
-  username: string
+  username?: string
+  usernames?: string[]
 }
 
 export interface AnalyzeResponse {

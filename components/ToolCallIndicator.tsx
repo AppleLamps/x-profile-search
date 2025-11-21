@@ -39,41 +39,43 @@ export const ToolCallIndicator: React.FC<ToolCallIndicatorProps> = ({
     <AnimatePresence>
       {(toolCalls.length > 0 || isThinking) && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="bg-primary-background-secondary border border-primary-border rounded-input p-4 mb-6"
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+          className="bg-primary-accent-light/30 border border-primary-accent/20 rounded-card p-4 mb-6"
         >
           <div className="flex items-start gap-3">
-            <div className="mt-0.5">
-              <Loader2 className="w-4 h-4 animate-spin text-primary-text-secondary" />
+            <div className="bg-primary-accent-light p-2 rounded-lg">
+              <Loader2 className="w-4 h-4 animate-spin text-primary-accent" />
             </div>
             <div className="flex-1 min-w-0">
               {isThinking && (
-                <div className="text-small text-primary-text-secondary mb-2">
+                <div className="text-small font-medium text-primary-text mb-2">
                   {reasoningTokens ? (
-                    <>Thinking... ({reasoningTokens.toLocaleString()} tokens)</>
+                    <>Analyzing... ({reasoningTokens.toLocaleString()} reasoning tokens)</>
                   ) : (
-                    <>Thinking...</>
+                    <>Analyzing...</>
                   )}
                 </div>
               )}
-              
+
               {toolCalls.length > 0 && (
                 <div className="space-y-2">
                   {toolCalls.map((toolCall, index) => (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
                       className="flex items-center gap-2 text-small text-primary-text-secondary"
                     >
-                      <span className="text-primary-text-secondary">
+                      <span className="text-primary-accent">
                         {getToolIcon(toolCall.name)}
                       </span>
-                      <span>{getToolDisplayName(toolCall.name)}</span>
+                      <span className="font-medium">{getToolDisplayName(toolCall.name)}</span>
                       {toolCall.arguments && (
-                        <span className="text-xs opacity-75 truncate">
+                        <span className="text-xs text-primary-text-tertiary truncate">
                           {(() => {
                             try {
                               const args = JSON.parse(toolCall.arguments)

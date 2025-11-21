@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { Input } from './ui/Input'
 import { Button } from './ui/Button'
@@ -17,6 +18,7 @@ export const ProfileAnalyzer: React.FC = () => {
   const [error, setError] = useState<string | undefined>()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [streamChunks, setStreamChunks] = useState<StreamChunk[]>([])
+  const [hasCompletedReport, setHasCompletedReport] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +50,7 @@ export const ProfileAnalyzer: React.FC = () => {
     setIsAnalyzing(true)
     setError(undefined)
     setStreamChunks([]) // Reset chunks
+    setHasCompletedReport(false) // Reset completion flag
 
     // Create new abort controller
     const abortController = new AbortController()
@@ -108,11 +111,11 @@ export const ProfileAnalyzer: React.FC = () => {
                     : 'Analysis error'
                 )
               } else if (parsed.type === 'done') {
-                // Process any remaining buffer before completing
-                // Buffer is already processed above, so we can safely complete
-                setIsAnalyzing(false)
-                abortControllerRef.current = null
-                return
+                // Keep the final 'done' chunk so UI can pick up final metadata
+                setStreamChunks((prev) => [...prev, parsed])
+                // don't return here — allow loop to finish and handle the stream closure
+                // so the component keeps the report visible after streaming ends
+                continue
               } else {
                 // Accumulate chunks for display
                 setStreamChunks((prev) => [...prev, parsed])
@@ -131,7 +134,9 @@ export const ProfileAnalyzer: React.FC = () => {
         if (data && data !== '[DONE]') {
           try {
             const parsed: StreamChunk = JSON.parse(data)
-            if (parsed.type !== 'error' && parsed.type !== 'done') {
+            if (parsed.type === 'done') {
+              setStreamChunks((prev) => [...prev, parsed])
+            } else if (parsed.type !== 'error') {
               setStreamChunks((prev) => [...prev, parsed])
             }
           } catch (parseError) {
@@ -141,6 +146,7 @@ export const ProfileAnalyzer: React.FC = () => {
       }
 
       setIsAnalyzing(false)
+      setHasCompletedReport(true) // Mark report as completed
       abortControllerRef.current = null
     } catch (err) {
       // Don't set error if request was aborted
@@ -183,13 +189,13 @@ export const ProfileAnalyzer: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <Card className="border-primary-border/50 shadow-2xl shadow-brand-start/5">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-heading-md font-semibold">Analyze a Profile</h2>
-            <p className="text-body text-primary-text-secondary">
-              Generate detailed insights and strategic analysis
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Card className="shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="text-center space-y-3">
+            <h2 className="text-heading-md font-bold text-primary-text">Analyze a Profile</h2>
+            <p className="text-body text-primary-text-secondary max-w-xl mx-auto">
+              Enter an X username to generate comprehensive insights and strategic analysis
             </p>
           </div>
 
@@ -202,11 +208,11 @@ export const ProfileAnalyzer: React.FC = () => {
             />
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <Input
                 id="username"
-                placeholder="username or @username"
+                placeholder="Enter username or @username"
                 value={username}
                 onChange={handleInputChange}
                 error={error}
@@ -214,7 +220,6 @@ export const ProfileAnalyzer: React.FC = () => {
                 disabled={isAnalyzing}
                 aria-label="X username"
                 aria-describedby={error ? 'username-error' : undefined}
-                className="h-14 text-lg"
               />
             </div>
             <div className="sm:w-auto">
@@ -222,9 +227,9 @@ export const ProfileAnalyzer: React.FC = () => {
                 type="submit"
                 isLoading={isAnalyzing}
                 disabled={isAnalyzing || !username.trim()}
-                className="w-full sm:w-auto min-w-[160px] h-14 text-lg font-semibold shadow-lg shadow-brand-start/20"
+                className="w-full sm:w-auto min-w-[140px]"
               >
-                {isAnalyzing ? 'Analyzing...' : 'Generate Report'}
+                Analyze
               </Button>
             </div>
           </div>
@@ -233,18 +238,26 @@ export const ProfileAnalyzer: React.FC = () => {
 
       {/* Loading Skeleton */}
       {isAnalyzing && streamChunks.length === 0 && (
-        <div className="animate-fade-in">
-          <Card>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card hover={false}>
             <ReportSkeleton />
           </Card>
-        </div>
+        </motion.div>
       )}
 
       {/* Streaming Report */}
-      {(streamChunks.length > 0 || isAnalyzing) && (
-        <div className="animate-fade-in">
+      {(streamChunks.length > 0 || isAnalyzing || hasCompletedReport) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <StreamingReport streamChunks={streamChunks} isStreaming={isAnalyzing} />
-        </div>
+        </motion.div>
       )}
     </div>
   )

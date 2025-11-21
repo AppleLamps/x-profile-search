@@ -23,11 +23,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { username } = body
+    const { username, usernames } = body
 
-    if (!username || typeof username !== 'string') {
+    // Normalize to array of usernames
+    let targets: string[] = []
+    if (usernames && Array.isArray(usernames)) {
+      targets = usernames
+    } else if (username && typeof username === 'string') {
+      targets = [username]
+    }
+
+    if (targets.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Username is required' }),
+        JSON.stringify({ error: 'At least one username is required' }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' },
@@ -35,16 +43,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate username
-    const validation = validateUsername(username)
-    if (!validation.isValid) {
-      return new Response(
-        JSON.stringify({ error: validation.error }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
+    // Validate all usernames
+    for (const target of targets) {
+      const validation = validateUsername(target)
+      if (!validation.isValid) {
+        return new Response(
+          JSON.stringify({ error: `Invalid username "${target}": ${validation.error}` }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+      }
     }
 
     // Create a ReadableStream for SSE
@@ -71,8 +81,10 @@ export async function POST(request: NextRequest) {
           let finalCitations: string[] = []
 
           await analyzeProfile({
-            username: sanitizeUsername(username),
+            usernames: targets.map(t => sanitizeUsername(t)),
             onChunk: (chunk) => {
+              console.log('Received chunk:', chunk)
+
               // Validate chunk structure
               if (!chunk || typeof chunk !== 'object') {
                 console.warn('Invalid chunk received:', chunk)

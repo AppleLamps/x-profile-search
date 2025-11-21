@@ -8,20 +8,28 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          background: '#0f172a', // Slate 900
-          'background-off': '#1e293b', // Slate 800
-          'background-secondary': '#334155', // Slate 700
-          accent: '#38bdf8', // Sky 400
-          text: '#f8fafc', // Slate 50
-          'text-secondary': '#94a3b8', // Slate 400
-          border: '#334155', // Slate 700
-          hover: '#1e293b', // Slate 800
-          success: '#4ade80', // Green 400
+          background: '#FFFFFF', // Pure white
+          'background-off': '#F9FAFB', // Subtle off-white
+          'background-secondary': '#F3F4F6', // Light gray
+          'background-tertiary': '#E5E7EB', // Medium gray
+          accent: '#2563EB', // Professional blue
+          'accent-hover': '#1D4ED8', // Darker blue
+          'accent-light': '#DBEAFE', // Light blue
+          text: '#111827', // Rich black
+          'text-secondary': '#6B7280', // Medium gray
+          'text-tertiary': '#9CA3AF', // Light gray
+          border: '#E5E7EB', // Subtle border
+          'border-light': '#F3F4F6', // Very light border
+          hover: '#F9FAFB', // Subtle hover
+          success: '#10B981', // Green
+          warning: '#F59E0B', // Amber
+          error: '#EF4444', // Red
         },
-        // Add specific gradient colors
+        // Brand gradient colors
         brand: {
-          start: '#3b82f6', // Blue 500
-          end: '#8b5cf6', // Violet 500
+          start: '#2563EB', // Professional blue
+          mid: '#3B82F6', // Bright blue
+          end: '#60A5FA', // Light blue
         }
       },
       fontFamily: {
@@ -54,15 +62,21 @@ module.exports = {
         '64': '64px',
       },
       borderRadius: {
-        'card': '16px',
+        'card': '20px',
         'input': '12px',
         'button': '12px',
+        'badge': '8px',
       },
       boxShadow: {
-        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'input-focus': '0 0 0 2px rgba(56, 189, 248, 0.5)',
-        'glow': '0 0 15px rgba(56, 189, 248, 0.5)',
+        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05)',
+        'input-focus': '0 0 0 4px rgba(37, 99, 235, 0.1)',
+        'button': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'button-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
       },
       maxWidth: {
         'container': '1200px',
